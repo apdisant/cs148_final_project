@@ -1,3 +1,3 @@
 <header>
-   <h1 class = "title">EE Degree Requirements</h1>
+   <h1 class = "title">Clip Notes</h1>
 </header>
