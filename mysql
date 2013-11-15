@@ -1,0 +1,1 @@
+mysql -h webdb.uvm.edu -p -u apdisant_admin APDISANT_REGISTRATION

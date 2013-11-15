@@ -1,0 +1,31 @@
+create table tblUser(
+pkEmail varchar(20) Primary key,
+fldFirstName varchar(20),
+fldLastName varchar(20),
+fldDateJoined datetime(),
+fldColorScheme int(1),
+fldNotesMade int(3),
+fldSpaceUsed int(12)
+);
+
+create table tblNote(
+pkNoteID int(20) Primary key auto_increment,
+fldFromName varchar(20),
+fldToName varchar(20),
+fldMessage text(),
+fldTimePosted datetime(),
+fldDeadline datetime(),
+);
+
+create table tblNoteToUser(
+fkNoteID int(20) not null references tblNote(pkNoteID),
+fkEmail varchar(20) not null references tblUser(pkEmail),
+primary key (fkNoteID, fkEmail)
+);
+
+create table tblFile(
+pkUsernameNum varchar(25) Primary key,
+fldType char(3),
+fldUploader varchar(20),
+fldSize int(7)
+);

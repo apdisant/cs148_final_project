@@ -2,6 +2,9 @@
 {
    color: #000000;
    font-size: 30px;
+   position: fixed;
+   top:0;
+   left:1em;
 /*   position: absolute;
    left: 50%;   */
 }
@@ -11,8 +14,19 @@
    list-style-type: none;
    font-size:22px;
    padding-right:20px;
+   position: fixed;
+   top: -10%;
+   left: 0;
 }
-body{background-color:white;}
+#home
+{
+/*
+   background-color:white;
+*/
+   position: absolute;
+   top: 10%;
+   left : 10px;
+}
 #footer
 {
    font-size:6px;
@@ -24,57 +38,3 @@ body{background-color:white;}
    left:0;
 }
 
-/*
-.checkbox
-{
-   border: 0px;
-}
-#frmRegister
-{
-   position:relative;
-   height:250px;
-}
-.checkbox
-{
-}
-#chkS1
-{
-   float:left;
-   height:10em;
-   width:50%;
-}
-#chkS2
-{
-   height:10em;
-}
-#chkS3
-{
-   float:left;
-   height:10em;
-   width:50%;
-}
-#chkS4
-{
-   height:10em;
-}
-#chkS5
-{
-   float:left;
-   height:10em;
-   width:50%;
-}
-#chkS6
-{
-   height:10em;
-}
-#chkS7
-{
-   float:left;
-   height:10em;
-   width:50%;
-}
-#chkS8
-{
-   height:10em;
-}
-*/
