@@ -6,7 +6,7 @@
 
 /*include("/usr/local/uvm-inc/apdisant.inc")*/
 
-$databaseName="APDISANT_REGISTRATION";    
+$databaseName="APDISANT_CLIP_NOTE";   
 $dbUsername = "apdisant_admin";
 $dbUserPass = "password";
 $dsn = 'mysql:host=webdb.uvm.edu;dbname=';

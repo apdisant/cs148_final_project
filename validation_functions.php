@@ -14,7 +14,7 @@ function verifyEmail ($testString) {
 
 function verifyText ($testString) {
     // Check for letters, numbers and dash, period, ?, !, space and single and double quotes only. 
-    return (preg_match("/^([[:alnum:]]|-|\.| |\n|\r|\?|\!|\"|\')+$/",$testString));
+    return (preg_match("/^([[:alnum:]]|-|\.| |\n|\r|\?|\@|\*|\#|\%|\^|\&|\(|\)|\+|\=|\$|\_|\!|\"|\')+$/",$testString));
 }
 
 function verifyPhone ($testString) {

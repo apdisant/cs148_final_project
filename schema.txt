@@ -2,7 +2,7 @@ create table tblUser(
 pkEmail varchar(20) Primary key,
 fldFirstName varchar(20),
 fldLastName varchar(20),
-fldDateJoined datetime(),
+fldDateJoined datetime not null,
 fldColorScheme int(1),
 fldNotesMade int(3),
 fldSpaceUsed int(12)
@@ -12,9 +12,9 @@ create table tblNote(
 pkNoteID int(20) Primary key auto_increment,
 fldFromName varchar(20),
 fldToName varchar(20),
-fldMessage text(),
-fldTimePosted datetime(),
-fldDeadline datetime(),
+fldMessage text,
+fldTimePosted datetime not null,
+fldDeadline datetime not null
 );
 
 create table tblNoteToUser(

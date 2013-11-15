@@ -41,6 +41,7 @@ if ($debug) print "<p>date: " . $date . "</p>";
  $valid = verifyText($Note); /* test for non-valid  data */
         if (!$valid) {
             $errorMsg[] = "I'm sorry, the Note you entered is not valid. Letters, numbers and punctuation only";
+                     }
             $emailERROR = true;
  $valid = verifyAlphaNum($Recipient);  /*test for non-valid  data*/
         if (!$valid) {
@@ -85,7 +86,8 @@ if ($debug) print "<p>date: " . $date . "</p>";
 
 
         // If the transaction was successful, give success message
-        if ($dataEntered) {
+        if ($dataEntered) 
+        {
             if ($debug) print "<p>data entered now prepare keys ";
             //#################################################################
             // create a key value for confirmation
@@ -100,4 +102,22 @@ if ($debug) print "<p>date: " . $date . "</p>";
 
             $key1 = sha1($dateSubmitted);
             $key2 = $primaryKey;
+         } //data entered
+     } // no errors
+} //ends if form submitted
+
+#######################################################################################
+// Begin creating actual form
+#######################################################################################
+
+include ("top.php");
+
+   $ext = pathinfo(basename($_SERVER['PHP_SELF']));
+   $file_name = basename($_SERVER['PHP_SELF'], '.' . $ext['extension']);
+     if ($debug) print '<body id="' . $file_name . '">';
+
+include ("header.php");
+?> 
+   
+    
 
