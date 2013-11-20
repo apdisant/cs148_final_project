@@ -11,9 +11,8 @@ session_start();
    <link rel="stylesheet" href="style.css" type="text/css" media = "screen">
    <?php 
    include ("header.php");
-   include ("menu.php");
    $debug = 0; 
    ?>
-
+</head>
 <body id="home">
 
