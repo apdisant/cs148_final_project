@@ -1,4 +1,5 @@
 <?php
+session_start();
 /* the purpose of this page is to display a form to allow a person to register
  * the form will be sticky meaning if there is a mistake the data previously 
  * entered will be displayed again. Once a form is submitted (to this same page)
@@ -36,7 +37,7 @@
 // Initialize variables
 //  
 
-$debug = 0;
+$debug = 1;
 if ($debug) print "<p>DEBUG MODE IS ON</p>";
 
 $baseURL = "https://www.uvm.edu/~apdisant/";
@@ -51,11 +52,8 @@ require_once("connect.php");
 // to my email address. you lose 10% on your grade if you forget to change it.
 
 $email = "apdisant@uvm.edu";
-$Username = "apdisant";
 $FirstName = "Alex";
 $LastName = "DiSanto";
-$Gender = "Male";
-$CurrentGrade = "Sophomore";
 
 
 // $email = "";
@@ -63,8 +61,9 @@ $CurrentGrade = "Sophomore";
 // 
 // flags for errors
 
-$emailERROR = false;
-
+$userERROR = false;
+$firstERROR = false;
+$lastERROR = false;
 
 //#############################################################################
 //  
@@ -85,11 +84,8 @@ $messageC = "";
 if(isset($_POST["btnReset"]))
 {
 $email = "apdisant@uvm.edu";
-$Username = "apdisant";
 $FirstName = "Alex";
 $LastName = "DiSanto";
-$Gender = "Male";
-$CurrentGrade = "Sophomore";
 }
 
 
@@ -111,11 +107,10 @@ if (isset($_POST["btnSubmit"])) {
 //
 
     $email = htmlentities($_POST["txtEmail"], ENT_QUOTES, "UTF-8");
-    $Username = htmlentities($_POST["Username"], ENT_QUOTES, "UTF-8");
+    $_SESSION['email'] = $email;
+    if ($debug) print '<p> sess email: '.$_SESSION['email'].'</p>';
     $FirstName = htmlentities($_POST["FirstName"], ENT_QUOTES, "UTF-8");
     $LastName = htmlentities($_POST["LastName"], ENT_QUOTES, "UTF-8");
-    $Gender = htmlentities($_POST["radGender"], ENT_QUOTES, "UTF-8");
-    $CurrentGrade = htmlentities($_POST["lstGrade"], ENT_QUOTES, "UTF-8");
 
    
 //#############################################################################
@@ -145,18 +140,26 @@ if (isset($_POST["btnSubmit"])) {
             $emailERROR = true;
         }
     }
-        $valid = verifyAlphaNum($Username);  /*test for non-valid  data*/ 
+    if (empty($FirstName)) {
+        $errorMsg[] = "Please enter your First Name";
+        $emailERROR = true;
+    } else {
+        $valid = verifyAlphaNum($FirstName); /* test for non-valid  data */
         if (!$valid) {
-            $errorMsg[] = "I'm sorry, the username you entered is not valid.";
-                     }
-        $valid = verifyAlphaNum($FirstName);  /*test for non-valid  data*/ 
+            $errorMsg[] = "I'm sorry, the First Name you entered is not valid.";
+            $emailERROR = true;
+        }
+    }
+    if (empty($LastName)) {
+        $errorMsg[] = "Please enter your Last Name";
+        $emailERROR = true;
+    } else {
+        $valid = verifyAlphaNum($LastName); /* test for non-valid  data */
         if (!$valid) {
-            $errorMsg[] = "I'm sorry, the username you entered is not valid.";
-                     }
-        $valid = verifyAlphaNum($LastName);  /*test for non-valid  data*/ 
-        if (!$valid) {
-            $errorMsg[] = "I'm sorry, the username you entered is not valid.";
-                     }
+            $errorMsg[] = "I'm sorry, the Last Name you entered is not valid.";
+            $emailERROR = true;
+        }
+    }
 //############################################################################
 // 
 // Processing the Data of the form
@@ -175,12 +178,9 @@ if (isset($_POST["btnSubmit"])) {
         try {
             $db->beginTransaction();
            
-            $sql = 'INSERT INTO tblStudent SET fldEmail="' . $email . '", ';
-            $sql .= 'pkUsername="' . $Username . '",';
+            $sql = 'INSERT INTO tblUser SET pkEmail="' . $email . '", ';
             $sql .= 'fldFirstName="' .$FirstName . '",';
-            $sql .= 'fldLastName="' .$LastName . '",';
-            $sql .= 'fldGender="' .$Gender . '",';
-            $sql .= 'fldCurrentYear="' .$CurrentGrade . '"';
+            $sql .= 'fldLastName="' .$LastName . '"';
 
             //$sql .= '
             $stmt = $db->prepare($sql);
@@ -207,7 +207,7 @@ if (isset($_POST["btnSubmit"])) {
             //#################################################################
             // create a key value for confirmation
 
-            $sql = "SELECT fldDateJoined FROM tblRegister WHERE pkRegisterId=" . $primaryKey;
+            $sql = "SELECT fldDateJoined FROM tblUser WHERE pkEmail=" . $primaryKey;
             $stmt = $db->prepare($sql);
             $stmt->execute();
 
@@ -319,44 +319,26 @@ include ("header.php");
                     <input id ="txtEmail" name="txtEmail" class="element text medium<?php if ($emailERROR) echo ' mistake'; ?>" type="text" maxlength="255" value="<?php echo $email; ?>" placeholder="enter your preferred email address" onfocus="this.select()"  tabindex="30"/>
 
                 </fieldset> 
+
+
 <fieldset>
-      <label for="Username" class="required">Username</label>
-      <input type="text" maxlength="255" id="Username" name="Username" class="element text medium" value="<?php echo $Username; ?>" placeholder="Username" onfocus="this.select()" />
-   </fieldset>
-   <fieldset>
       <label for="FirstName" class="required">First Name </label>
       <input type="text" id="FirstName" name="FirstName" value="<?php echo $FirstName; ?>" class="element text medium" placeholder="FirstName"  onfocus="this.select()" />
     </fieldset>
+
+
    <fieldset>
       <label for="LastName" class="required">Last Name </label>
       <input type="text" id="LastName" name="LastName" value="<?php echo $LastName; ?>" placeholder="LastName"  onfocus="this.select()" />
     </fieldset>
-    <fieldset class="radio">
-    <legend>What is your gender?</legend>
-    <label><input type="radio" id="radGenderMale" name="radGender" value="Male" tabindex="231" 
-	<?php if($Gender=="Male") echo ' checked="checked" ';?>>Male</label>
-            
-	<label><input type="radio" id="radGenderFemale" name="radGender" value="Female" tabindex="233" 
-	<?php if($Gender=="Female") echo ' checked="checked" ';?>>Female</label>
-</fieldset>
 
-<fieldset class="lists">	
-	<legend>What is your Current Grade</legend>
-	<select id="lstGrade" name="lstGrade" tabindex="281" size="1">
-		<option value="Freshman" <?php if($CurrentGrade=="Freshman") echo ' selected="selected" ';?>>Freshman</option>
-		<option value="Sophomore" <?php if($CurrentGrade=="Sophomore") echo ' selected="selected" ';?>>Sophomore</option>
-		<option value="Junior" <?php if($CurrentGrade=="Junior") echo ' selected="selected" ';?>>Junior</option>
-		<option value="Senior" <?php if($CurrentGrade=="Senior") echo ' selected="selected" ';?>>Senior</option>
-	</select>
-</fieldset>
-
-
-                <fieldset class="buttons">
+<fieldset class="buttons">
                     <input type="hidden" name="redirect" value="form.php">
-                    <input type="submit" id="btnSubmit" name="btnSubmit" value="Register" tabindex="991" class="button"> 
+                    <input type="submit" id="btnSubmit" name="btnSubmit" value="Register" tabindex="991" class="button">
                     <input type="reset" id="butReset" name="butReset" value="Reset Form" tabindex="993" class="button" onclick="reSetForm()" >
-                </fieldset>                    
+                </fieldset>
 </form>
+
 
 
             <?php
