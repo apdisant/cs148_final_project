@@ -1,6 +1,8 @@
 <?
+session_start();
 $debug = 1;
 if ($debug) print "<p>DEBUG MODE IS ON</p>";
+if ($debug) print "<p> session username: " . $_SESSION["Username"]. "</p>";
 
 $baseURL = "https://www.uvm.edu/~apdisant/";
 $folderPath = "cs148/assignment5.1/";
@@ -28,6 +30,7 @@ if (isset($_POST["btnSubmit"])) {
     }
 
     $Note = htmlentities($_POST["txtNote"], ENT_QUOTES, "UTF-8");
+    if($debug) print "<p> note: " .$Note. "</p>";
     $Recipient= htmlentities($_POST["txtRecipient"], ENT_QUOTES, "UTF-8");
     $Deadline = htmlentities($_POST["txtDeadline"], ENT_QUOTES, "UTF-8");
     $date = date('Y-m-d H:i:s');
@@ -43,10 +46,12 @@ if ($debug) print "<p>date: " . $date . "</p>";
             $errorMsg[] = "I'm sorry, the Note you entered is not valid. Letters, numbers and punctuation only";
                      }
             $emailERROR = true;
- $valid = verifyAlphaNum($Recipient);  /*test for non-valid  data*/
+/*
+ $valid = verifyAlphaNum($Recipient);
         if (!$valid) {
             $errorMsg[] = "I'm sorry, the username you entered is not valid.";
                      }
+*/
 ###################################################################################
 
    if (!$errorMsg){
@@ -61,10 +66,10 @@ if ($debug) print "<p>date: " . $date . "</p>";
             $db->beginTransaction();
 
             $sql = 'INSERT INTO tblNote SET fldMessage="' . $Note . '", ';
-            $sql .= 'fldFromName="' . $Username . '",';
-            $sql .= 'fldToName="' .$Recipient . '",';
-            $sql .= 'fldTimePosted="' .$Date . '",';
-            $sql .= 'fldDeadline="' .$Deadline . '",';
+            $sql .= 'fkFromUsername="' .$_SESSION["Username"]. '",';
+            $sql .= 'fldToUsername="' .$Recipient . '",';
+            $sql .= 'fldTimePosted="' .$date . '",';
+            $sql .= 'fldDeadline="' .$Deadline . '"';
 
             //$sql .= '
             $stmt = $db->prepare($sql);
@@ -119,5 +124,68 @@ include ("top.php");
 include ("header.php");
 ?> 
    
-    
+   <section id="main">
+
+        <?
+//############################################################################
+//
+//  In this block  display the information that was submitted and do not 
+//  display the form.
+//
+        if (isset($_POST["btnSubmit"]) AND empty($errorMsg)) {
+            print "<p>Note Submitted ";
+
+        } else {
+//#############################################################################
+//
+// Here we display any errors that were on the form
+//
+
+            print '<div id="errors">';
+
+            if ($errorMsg) {
+                echo "<ol>\n";
+                foreach ($errorMsg as $err) {
+                    echo "<li>" . $err . "</li>\n";
+                }
+                echo "</ol>\n";
+            }
+
+            print '</div>';
+            ?>
+
+
+<form action="<? print $_SERVER['PHP_SELF']; ?>"
+                  
+                  method="post"
+                  id="frmAdd">
+                <fieldset class="add">
+                    <legend>add a note</legend>
+
+
+                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="soft" maxlength="12000" value="<?php echo $Note; ?>" placeholder="Enter your note here" onfocus="this.select()"  tabindex="30"/>
+                    </textarea>
+
+                </fieldset>
+
+
+
+<fieldset class="buttons">
+                    <input type="hidden" name="redirect" value="form.php">
+                    <input type="submit" id="btnSubmit" name="btnSubmit" value="submit" tabindex="991" class="button">
+                    <input type="reset" id="butReset" name="butReset" value="Reset Form" tabindex="993" class="button" onclick="reSetForm()" >
+                </fieldset>
+</form>
+
+
+ <?php
+        } // end body submit
+        ?>
+    </section>
+
+
+
+<?
+        include ("footer.php");
+?>
 

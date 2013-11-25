@@ -4,9 +4,9 @@
    </h1>
    <h2>
       <ul id="topMenu" class = "title">
-         <li><a href = "home.php">Home</a></li>
-         <li><a href = "register.php">Register</a></li>
-         <li><a href = "add.php">Add a note</a></li>
+         <li><a href = "settings.php">Settings</a></li>
+         <li><a href = "notes.php">Notes</a></li>
+         <li><a href = "logout.php">logout</a></li>
       </ul>
    </h2>
 </header>

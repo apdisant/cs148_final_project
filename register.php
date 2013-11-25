@@ -51,19 +51,16 @@ require_once("connect.php");
 // set all form variables to their default value on the form. for testing i set
 // to my email address. you lose 10% on your grade if you forget to change it.
 
-$email = "apdisant@uvm.edu";
-$FirstName = "Alex";
-$LastName = "DiSanto";
+//$Username = "apdisant";
+//$Password = "pass";
+$adminemail = "apdisant@uvm.edu";
 
-
-// $email = "";
+// $Username = "";
 //#############################################################################
 // 
 // flags for errors
 
-$userERROR = false;
-$firstERROR = false;
-$lastERROR = false;
+$UsernameERROR = false;
 
 //#############################################################################
 //  
@@ -83,9 +80,8 @@ $messageC = "";
 
 if(isset($_POST["btnReset"]))
 {
-$email = "apdisant@uvm.edu";
-$FirstName = "Alex";
-$LastName = "DiSanto";
+//$Username = "apdisant";
+//$Password = "pass";
 }
 
 
@@ -106,11 +102,12 @@ if (isset($_POST["btnSubmit"])) {
 // replace any html or javascript code with html entities
 //
 
-    $email = htmlentities($_POST["txtEmail"], ENT_QUOTES, "UTF-8");
-    $_SESSION['email'] = $email;
-    if ($debug) print '<p> sess email: '.$_SESSION['email'].'</p>';
-    $FirstName = htmlentities($_POST["FirstName"], ENT_QUOTES, "UTF-8");
-    $LastName = htmlentities($_POST["LastName"], ENT_QUOTES, "UTF-8");
+    $Username = htmlentities($_POST["txtUsername"], ENT_QUOTES, "UTF-8");
+    //$_SESSION['Username'] = $Username;
+    if ($debug) print '<p> sess Username: '.$_SESSION['Username'].'</p>';
+    $Password = htmlentities($_POST["txtPassword"], ENT_QUOTES, "UTF-8");
+    $HashedPass = md5($Password);
+    if ($debug) print '<p> pass: ' .$Password.'</p> <p> hashed: ' .$HashedPass. '</p>';
 
    
 //#############################################################################
@@ -130,36 +127,27 @@ if (isset($_POST["btnSubmit"])) {
 // Check each of the fields for errors then adding any mistakes to the array.
 //
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       Check email address
-    if (empty($email)) {
-        $errorMsg[] = "Please enter your Email Address";
-        $emailERROR = true;
+    if (empty($Username)) {
+        $errorMsg[] = "Please enter your Username";
+        $UsernameERROR = true;
     } else {
-        $valid = verifyEmail($email); /* test for non-valid  data */
+        $valid = verifyAlphaNum($Username); /* test for non-valid  data */
         if (!$valid) {
-            $errorMsg[] = "I'm sorry, the email address you entered is not valid.";
-            $emailERROR = true;
+            $errorMsg[] = "I'm sorry, the username you entered is not valid.";
+            $UsernameERROR = true;
         }
     }
-    if (empty($FirstName)) {
-        $errorMsg[] = "Please enter your First Name";
-        $emailERROR = true;
+    if (empty($Password)) {
+        $errorMsg[] = "Please enter your Password";
+        $PasswordERROR = true;
     } else {
-        $valid = verifyAlphaNum($FirstName); /* test for non-valid  data */
+        $valid = verifyPass($Password); /* test for non-valid  data */
         if (!$valid) {
-            $errorMsg[] = "I'm sorry, the First Name you entered is not valid.";
-            $emailERROR = true;
+            $errorMsg[] = "I'm sorry, the username you entered is not valid.";
+            $PasswordERROR = true;
         }
     }
-    if (empty($LastName)) {
-        $errorMsg[] = "Please enter your Last Name";
-        $emailERROR = true;
-    } else {
-        $valid = verifyAlphaNum($LastName); /* test for non-valid  data */
-        if (!$valid) {
-            $errorMsg[] = "I'm sorry, the Last Name you entered is not valid.";
-            $emailERROR = true;
-        }
-    }
+
 //############################################################################
 // 
 // Processing the Data of the form
@@ -178,9 +166,8 @@ if (isset($_POST["btnSubmit"])) {
         try {
             $db->beginTransaction();
            
-            $sql = 'INSERT INTO tblUser SET pkEmail="' . $email . '", ';
-            $sql .= 'fldFirstName="' .$FirstName . '",';
-            $sql .= 'fldLastName="' .$LastName . '"';
+            $sql = 'INSERT INTO tblUser SET pkUsername="' . $Username . '", ';
+            $sql .='fldPassword="' .$HashedPass .'" '; 
 
             //$sql .= '
             $stmt = $db->prepare($sql);
@@ -188,7 +175,6 @@ if (isset($_POST["btnSubmit"])) {
        
             $stmt->execute();
             
-            $primaryKey = $db->lastInsertId();
             if ($debug) print "<p>pk= " . $primaryKey;
 
             // all sql statements are done so lets commit to our changes
@@ -207,7 +193,7 @@ if (isset($_POST["btnSubmit"])) {
             //#################################################################
             // create a key value for confirmation
 
-            $sql = "SELECT fldDateJoined FROM tblUser WHERE pkEmail=" . $primaryKey;
+            $sql = "SELECT fldDateJoined FROM tblUser WHERE pkUsername=" . $primaryKey;
             $stmt = $db->prepare($sql);
             $stmt->execute();
 
@@ -228,25 +214,23 @@ if (isset($_POST["btnSubmit"])) {
             //Put forms information into a variable to print on the screen
             //
 
-            $messageA = '<h2>Thank you for registering.</h2>';
+            $messageA = '<p>New member.</p>';
 
-            $messageB = "<p>Click this link to confirm your registration: ";
+            $messageB = "<p>Click this link to see ";
             $messageB .= '<a href="' . $baseURL . $folderPath  . 'confirmation.php?q=' . $key1 . '&amp;w=' . $key2 . '">Confirm Registration</a></p>';
             $messageB .= "<p>or copy and paste this url into a web browser: ";
             $messageB .= $baseURL . $folderPath  . 'confirmation.php?q=' . $key1 . '&amp;w=' . $key2 . "</p>";
 
-            $messageC .= "<p><b>Email Address:</b><i>   " . $email . "</i></p>";
             $messageC .= "<p><b>User Name:</b><i>   " . $Username . "</i></p>";
-            $messageC .= "<p><b>Name:</b><i>   " . $FirstName . ' ' . $LastName . "</i></p>";
 
             //##############################################################
             //
             // email the form's information
             //
             
-            $subject = "You're registered! After you confirm.";
+            $subject = "You're registered! Thank you!";
             include_once('mailMessage.php');
-            $mailed = sendMail($email, $subject, $messageA . $messageB . $messageC);
+            $mailed = sendMail($adminemail, $subject, $messageA . $messageB . $messageC);
         } //data entered   
     } // no errors 
 }// ends if form was submitted. 
@@ -261,7 +245,6 @@ include ("header.php");
     ?>
 
     <section id="main">
-        <h1>Register </h1>
 
         <?
 //############################################################################
@@ -270,19 +253,19 @@ include ("header.php");
 //  display the form.
 //
         if (isset($_POST["btnSubmit"]) AND empty($errorMsg)) {
-            print "<h2>Your Request has ";
+            print "<p>Your Request has ";
 
             if (!$mailed) {
                 echo "not ";
             }
 
-            echo "been processed</h2>";
+            echo "been processed</p>";
 
             print "<p>A copy of this message has ";
             if (!$mailed) {
                 echo "not ";
             }
-            print "been sent to: " . $email . "</p>";
+            print "been sent to: " . $adminemail . "</p>";
 
             echo $messageA . $messageC;
         } else {
@@ -314,23 +297,19 @@ include ("header.php");
                 <fieldset class="contact">
                     <legend>Contact Information</legend>
 
-                    <label class="required" for="txtEmail">Email </label>
+                    <label class="required" for="txtUsername">Username </label>
 
-                    <input id ="txtEmail" name="txtEmail" class="element text medium<?php if ($emailERROR) echo ' mistake'; ?>" type="text" maxlength="255" value="<?php echo $email; ?>" placeholder="enter your preferred email address" onfocus="this.select()"  tabindex="30"/>
+                    <input id ="txtUsername" name="txtUsername" class="element text medium<?php if ($UsernameERROR) echo ' mistake'; ?>" type="text" maxlength="255" value="<?php echo $Username; ?>" placeholder="enter your preferred Username" onfocus="this.select()"  tabindex="30"/>
 
                 </fieldset> 
 
 
 <fieldset>
-      <label for="FirstName" class="required">First Name </label>
-      <input type="text" id="FirstName" name="FirstName" value="<?php echo $FirstName; ?>" class="element text medium" placeholder="FirstName"  onfocus="this.select()" />
+      <label for="txtPassword" class="required">Password </label>
+      <input type="password" id="txtPassword" name="txtPassword" value="<?php echo $Password; ?>" class="element text medium" placeholder="Password"  onfocus="this.select()" />
     </fieldset>
 
 
-   <fieldset>
-      <label for="LastName" class="required">Last Name </label>
-      <input type="text" id="LastName" name="LastName" value="<?php echo $LastName; ?>" placeholder="LastName"  onfocus="this.select()" />
-    </fieldset>
 
 <fieldset class="buttons">
                     <input type="hidden" name="redirect" value="form.php">

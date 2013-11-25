@@ -1,7 +1,6 @@
 create table tblUser(
-pkEmail varchar(20) Primary key,
-fldFirstName varchar(20),
-fldLastName varchar(20),
+pkUsername varchar(20) Primary key,
+fldPassword char(32) not null,
 fldDateJoined timestamp not null default current_timestamp,
 fldColorScheme int(1),
 fldNotesMade int(3),
@@ -10,18 +9,18 @@ fldSpaceUsed int(12)
 
 create table tblNote(
 pkNoteID int(20) Primary key auto_increment,
-fkFromEmail varchar(20) references tblUser(pkEmail),
-fldToEmail varchar(20),
+fkFromUsername varchar(20) references tblUser(pkUsername),
+fldToUsername varchar(20),
 fldMessage text,
 fldTimePosted timestamp not null default current_timestamp,
-fldDeadline datetime not null
+fldDeadline datetime
 );
 
 create table tblNoteToUser(
 fkNoteID int(20) not null references tblNote(pkNoteID),
-fkFromEmail varchar(20) not null references tblUser(pkEmail),
-fkToEmail varchar(20) not null references tblNote(fldToEmail),
-primary key (fkNoteID, fkFromEmail)
+fkFromUsername varchar(20) not null references tblUser(pkUsername),
+fkToUsername varchar(20) not null references tblNote(fldToUsername),
+primary key (fkNoteID, fkFromUsername)
 );
 
 create table tblFile(
