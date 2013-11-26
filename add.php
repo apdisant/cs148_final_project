@@ -32,6 +32,10 @@ if (isset($_POST["btnSubmit"])) {
     $Note = htmlentities($_POST["txtNote"], ENT_QUOTES, "UTF-8");
     if($debug) print "<p> note: " .$Note. "</p>";
     $Recipient= htmlentities($_POST["txtRecipient"], ENT_QUOTES, "UTF-8");
+    if (!$Recipient)
+    {
+       $Recipient = $_SESSION['Username'];
+    } 
     $Deadline = htmlentities($_POST["txtDeadline"], ENT_QUOTES, "UTF-8");
     $date = date('Y-m-d H:i:s');
 
@@ -80,8 +84,15 @@ if ($debug) print "<p>date: " . $date . "</p>";
             $primaryKey = $db->lastInsertId();
             if ($debug) print "<p>pk = " .$primaryKey;
 
-            // all sql statements are done so lets commit to our changes
-            $dataEntered = $db->commit();
+          $sql2 = 'insert into tblNoteToUser Set fkNoteID="' .$primaryKey . '", ';
+          $sql2 .= 'fkFromUsername="' .$_SESSION["Username"]. '",';
+          $sql2 .= 'fkToUsername="' .$Recipient. '"';
+
+          $stmt2 = $db->prepare($sql2);
+          if ($debug) print "<p>sql2 " .$sql2;
+
+          $stmt2->execute();
+$dataEntered = $db->commit();
             if ($debug) print "<p>transaction complete ";
         } catch (PDOExecption $e) {
             $db->rollback();

@@ -88,10 +88,14 @@ if($debug){ print "<pre>"; print_r($user); print "</pre>";}
 if($user)
 {
     $SESSION_['Username'] = $user['pkUser'];
-}
-{
+}else{
     $UsernameERROR = true;
     $errorMsg[] = "incorrect user or password";
+}
+if($user['pkUser'] = admin)
+{
+   $_SESSION["admin"] = 1;
+   if ($debug) print $_SESSION['admin'];
 }
 
 }//end if submitted
@@ -114,8 +118,7 @@ include ("header.php");
 
         if (isset($_POST["btnSubmit"]) AND empty($errorMsg)) 
         {
-            print "<p>logged in as" . $SESSION_["Username"]. "</p>";
-            print "<p>logged in as" . $Username. "</p>";
+            print "<p>logged in as " . $Username. "</p>";
         }else{
 
 ##############################################################################

@@ -38,6 +38,27 @@ a
    list-style-type: none;
    font-size: 22px;
 }
+#MyNotes
+{
+   background: #FFFFFF;
+   width: 80em;
+}
+#MyNotes a
+{
+   display: block;
+   padding: 3px;
+   border-bottom: 1px solid #FFFFFF;
+   text-decoration: none;
+}
+#MyNotes a:hover
+{
+   background: #a0ffa9;
+} 
+.note
+{
+   word-wrap: break-word;
+   border: #000000;
+}
 #home
 {
 /*
