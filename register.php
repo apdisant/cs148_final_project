@@ -299,22 +299,19 @@ include ("header.php");
 
                     <label class="required" for="txtUsername">Username </label>
 
-                    <input id ="txtUsername" name="txtUsername" class="element text medium<?php if ($UsernameERROR) echo ' mistake'; ?>" type="text" maxlength="255" value="<?php echo $Username; ?>" placeholder="enter your preferred Username" onfocus="this.select()"  tabindex="30"/>
-
-                </fieldset> 
-
-
+                    <input id ="txtUsername" name="txtUsername" class="element text medium<?php if ($UsernameERROR) echo ' mistake'; ?>" type="text" maxlength="255" value="<?php echo $Username; ?>" placeholder="enter your preferred Username" onfocus="this.select()"  tabindex=1 />
+</fieldset>
 <fieldset>
       <label for="txtPassword" class="required">Password </label>
-      <input type="password" id="txtPassword" name="txtPassword" value="<?php echo $Password; ?>" class="element text medium" placeholder="Password"  onfocus="this.select()" />
+      <input type="password" id="txtPassword" name="txtPassword" value="<?php echo $Password; ?>" class="element text medium" placeholder="Password"  onfocus="this.select()" tabindex=2 />
     </fieldset>
 
 
 
 <fieldset class="buttons">
                     <input type="hidden" name="redirect" value="form.php">
-                    <input type="submit" id="btnSubmit" name="btnSubmit" value="Register" tabindex="991" class="button">
-                    <input type="reset" id="butReset" name="butReset" value="Reset Form" tabindex="993" class="button" onclick="reSetForm()" >
+                    <input type="submit" id="btnSubmit" name="btnSubmit" value="Register" tabindex="3" class="button">
+                    <input type="reset" id="butReset" name="butReset" value="Reset Form" tabindex="4" class="button" onclick="reSetForm()" >
                 </fieldset>
 </form>
 

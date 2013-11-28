@@ -6,12 +6,45 @@
    $folderPath = "cs148/assignment5.1/";
    // full URL of this form
    $yourURL = $baseURL . $folderPath . "notes.php";
+   $fromPage = getenv("http_referer");
+   if ($debug) {
+       print "<p>From: " . $fromPage . " should match ";
+       print "<p>Your: " . $yourURL;
+           }
    require_once ("connect.php");
+   if (!$_SESSION["Username"]){
+      print "<p><a href='login.php'>Please login first</a></p>"; 
+      die;
+   }
+   if (isset($_POST["cmdDelete"]))
+   {
+      if ($fromPage != $yourURL) {
+              die("<p>Sorry you cannot access this page. Security breach detected and reported.</p>");
+                                 }
+      $delID = htmlentities($_POST["deleteID"], ENT_QUOTES);
+
+      $sql = "Delete ";
+      $sql .= "FROM tblNote ";
+      $sql .= "where pkNoteID=" .$delID;
+
+      if ($debug) print "<p>sql " . $sql;
+      $stmt = $db->prepare($sql);
+      $DeleteData = $stmt->execute();
+
+      $sql = "Delete ";
+      $sql .= "FROM tblNoteToUser ";
+      $sql .= "where fkNoteID=" .$delID;
+
+      if ($debug) print "<p>sql " . $sql;
+      $stmt = $db->prepare($sql);
+      $DeleteData = $stmt->execute();
+   }
+
 ?>
 <p id = "add"> Add a note:
    <a href ="add.php">Add</a>
 </p>
-<ol id = "MyNotes">
+<ol class = "MyNotes">
 <?
 ##############################################################################
 //selects all notes to me from table
@@ -44,8 +77,18 @@
 
        foreach ($NotesFull as $NF) 
        {
-         print '<li class="note"><a href="#"> From: ' .$NF['fkFromUsername']. '';
-         print '<p>' .$NF['fldMessage']. '</p></li>';
+         print '<li class="note"> From: ' .$NF['fkFromUsername']. '';
+         ?>
+         <form action="<? print $_SERVER['PHP_SELF']; ?>"
+         method="post"
+         class="delete">
+            <fieldset class="delete">
+               <input type="submit" name="cmdDelete" class="deleteButton" value="x"/>
+               <?php print '<input name= "deleteID" type="hidden" id="deleteID" value="' . $NTM['fkNoteID'] . '"/>';?>
+	    </fieldset>
+         </form>
+         <?
+         print '<p class="message">' .$NF['fldMessage']. '</p></a></li>';
        }
        }
 print '</ol>'

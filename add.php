@@ -17,6 +17,53 @@ $Deadline = "";
 
 ###################################################################################
 
+/*
+if (isset($_POST["btnUpload"])) {
+    if ($fromPage != $yourURL) {
+        die("<p>Sorry you cannot access this page. Security breach detected and reported.</p>");
+    }
+    
+    $allowedExts = array("gif", "jpeg", "jpg", "png");
+    $temp = explode(".", $_FILES["imgFile"]["name"]);
+    $extension = end($temp);
+    
+    if ((($_FILES["imgFile"]["type"] == "image/gif")
+    || ($_FILES["imgFile"]["type"] == "image/jpeg")
+    || ($_FILES["imgFile"]["type"] == "image/jpg")
+    || ($_FILES["imgFile"]["type"] == "image/pjpeg")
+    || ($_FILES["imgFile"]["type"] == "image/x-png")
+    || ($_FILES["imgFile"]["type"] == "image/png"))
+    && ($_FILES["imgFile"]["size"] < 20000)
+    && in_array($extension, $allowedExts))
+      {
+      if ($_FILES["file"]["error"] > 0) {
+        if ($debug) { echo "Return Code: " . $_FILES["imgFile"]["error"] . "<br>";}
+        $output="<p>There was a problem submitting your file</p>";
+      } else {
+        if ($debug) {
+            echo "<p>Upload: " . $_FILES["imgFile"]["name"] . "<br>";
+            echo "Type: " . $_FILES["imgFile"]["type"] . "<br>";
+            echo "Size: " . ($_FILES["imgFile"]["size"] / 1024) . " kB<br>";
+            echo "Temp file: " . $_FILES["imgFile"]["tmp_name"] . "<br>";
+        }
+        
+        if (file_exists("images/" . $_FILES["imgFile"]["name"])){
+          $output= $_FILES["imgFile"]["name"] . " already exists. ";
+        }else{
+          move_uploaded_file($_FILES["imgFile"]["tmp_name"],"images/" . $_FILES["imgFile"]["name"]);
+          $output="<p>File Stored in: " . "images/" . $_FILES["imgFile"]["name"];
+          }
+        }
+      }
+    else
+      {
+      $output="<p>Invalid file";
+      }
+   
+
+} // ends form was submitted
+*/
+
 if (isset($_POST["btnSubmit"])) {
     $fromPage = getenv("http_referer");
 

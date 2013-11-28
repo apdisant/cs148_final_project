@@ -1,6 +1,6 @@
 <header>
    <h1>
-         Clip Notes
+         <a href = "home.php">Clip Notes</a>
    </h1>
    <h2>
       <ul id="topMenu" class = "title">
