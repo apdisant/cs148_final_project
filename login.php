@@ -51,7 +51,7 @@ include ("validation_functions.php");
         $errorMsg[] = "Please enter your Username";
         $UsernameERROR = true;
     } else {
-        $valid = verifyAlphaNum($Username); /* test for non-valid  data */
+        $valid = verifyUsername($Username); /* test for non-valid  data */
         if (!$valid) {
             $errorMsg[] = "I'm sorry, the username you entered is not valid.";
             $UsernameERROR = true;

@@ -1,6 +1,6 @@
 <?
 session_start();
-$debug = 1;
+$debug = 0;
 $uploadsDir = 'files';
 if ($debug) print "<p>DEBUG MODE IS ON</p>";
 if ($debug) print "<p> session username: " . $_SESSION["Username"]. "</p>";
@@ -33,10 +33,10 @@ if (isset($_POST["btnSubmit"])) {
 
     $Note = htmlentities($_POST["txtNote"], ENT_QUOTES, "UTF-8");
     if($debug) print "<p> note: " .$Note. "</p>";
-    $Recipient= htmlentities($_POST["txtRecipient"], ENT_QUOTES, "UTF-8");
-    if (!$Recipient)
+    $Recipients= htmlentities($_POST["txtRecipients"], ENT_QUOTES, "UTF-8");
+    if (!$Recipients)
     {
-       $Recipient = $_SESSION['Username'];
+       $Recipients = $_SESSION['Username'];
     } 
     $Deadline = htmlentities($_POST["txtDeadline"], ENT_QUOTES, "UTF-8");
     $date = date('Y-m-d H:i:s');
@@ -53,47 +53,55 @@ if ($debug) print "<p>date: " . $date . "</p>";
         if (!$valid) {
             $errorMsg[] = "I'm sorry, the Note you entered is not valid. Letters, numbers and punctuation only";
                      }
-            $emailERROR = true;
-/*
- $valid = verifyAlphaNum($Recipient);
+ $valid = verifyRecipients($Recipients); /* test for non-valid  data */
         if (!$valid) {
-            $errorMsg[] = "I'm sorry, the username you entered is not valid.";
+            $errorMsg[] = "I'm sorry, the list of recipients you entered is not valid. Letters and numbers only separated by commas";
                      }
-*/
 ##################################################################################
 //image submission
-
-$fileName = $_FILES['userfile']['name'];
-$tmpName  = $_FILES['userfile']['tmp_name'];
-$fileSize = $_FILES['userfile']['size'];
-$fileType = $_FILES['userfile']['type'];
-
-$fp      = fopen($tmpName, 'r');
-$content = fread($fp, filesize($tmpName));
-$content = addslashes($content);
-fclose($fp);
-
-if(!get_magic_quotes_gpc())
+if ($_FILES['userfile']['size'] > 0)
 {
-    $fileName = addslashes($fileName);
+   $fileName = $_FILES['userfile']['name'];
+   $tmpName  = $_FILES['userfile']['tmp_name'];
+   $fileSize = $_FILES['userfile']['size'];
+   $fileType = $_FILES['userfile']['type'];
+
+   $fp      = fopen($tmpName, 'r');
+   $content = fread($fp, filesize($tmpName));
+   $content = addslashes($content);
+   fclose($fp);
+
+   if(!get_magic_quotes_gpc())
+   {
+       $fileName = addslashes($fileName);
+   }
+
+
+   if ($debug)
+   {
+      echo "<br>Filename $fileName <br>";
+      print "<p>tempname " .$tmpName."</p>";
+      print "<p> filesize" .$fileSize."</p>";
+      print "<p> filetype" .$fileType."</p>";
+      print $uploadsDir."/".$fileName;
+   }
+   if (file_exists($uploadsDir."/".$fileName))
+   {
+   print "<p>" . $fileName . " already exists. ";
+   }else{
+   move_uploaded_file($tmpName, "$uploadsDir/$fileName");
+      print "<p>".$fileName. " uploaded</p>";
+   }
 }
 
+##############################################################################
+//recipient list scraping
 
-if ($debug)
-{
-   echo "<br>Filename $fileName <br>";
-   print "<p>tempname " .$tmpName."</p>";
-   print "<p> filesize" .$fileSize."</p>";
-   print "<p> filetype" .$fileType."</p>";
-   print $uploadsDir."/".$fileName;
-}
-if (file_exists($uploadsDir."/".$fileName))
-{
-print "<p>" . $fileName . " already exists. ";
-}else{
-move_uploaded_file($tmpName, "$uploadsDir/$fileName");
-   print "<p>".$fileName. " uploaded</p>";
-}
+if ($debug) print "<p>original recipients: " .$Recipients."</p>";
+$NSRecipients = str_replace(' ','',$Recipients);
+if ($debug) print "<p>spaceless recipients: " .$NSRecipients."</p>";
+$ArrayRecipients = explode(',',$Recipients);
+if ($debug) print "<p>csv recipients: "; print_r($ArrayRecipients); print "</p>";
 
 ##############################################################################
    if (!$errorMsg){
@@ -122,14 +130,21 @@ move_uploaded_file($tmpName, "$uploadsDir/$fileName");
             $primaryKey = $db->lastInsertId();
             if ($debug) print "<p>pk = " .$primaryKey;
 
-          $sql2 = 'insert into tblNoteToUser Set fkNoteID="' .$primaryKey . '", ';
-          $sql2 .= 'fkFromUsername="' .$_SESSION["Username"]. '",';
-          $sql2 .= 'fkToUsername="' .$Recipient. '"';
+          
+          foreach($ArrayRecipients as $Recipient)
+          {
+             $RecipNum = array_search($Recipient,$ArrayRecipients);
+             $NSRecipient = str_replace(' ','',$Recipient);
+             $sql2 = 'insert into tblNoteToUser Set fkNoteID="' .$primaryKey . '", ';
+             $sql2 .= 'fldRecipNum="' .$RecipNum. '",';
+             $sql2 .= 'fkFromUsername="' .$_SESSION["Username"]. '",';
+             $sql2 .= 'fkToUsername="' .$NSRecipient. '"';
 
-          $stmt2 = $db->prepare($sql2);
-          if ($debug) print "<p>sql2 " .$sql2;
+             $stmt2 = $db->prepare($sql2);
+             if ($debug) print "<p>sql2 " .$sql2;
 
-          $stmt2->execute();
+             $stmt2->execute();
+          }
 
           $sql3 = 'insert into tblFile Set fkNoteID="' .$primaryKey . '", ';
           $sql3 .= 'fldName="' .$fileName. '",';
@@ -139,6 +154,7 @@ move_uploaded_file($tmpName, "$uploadsDir/$fileName");
           if ($debug) print "<p>sql3 " .$sql3;
 
           $stmt3->execute();
+
 $dataEntered = $db->commit();
             if ($debug) print "<p>transaction complete";
         } catch (PDOExecption $e) {
@@ -221,9 +237,13 @@ include ("header.php");
                 <fieldset class="add">
                     <legend>add a note</legend>
 
+<p>Enter all recipients of this note separated by commas.</p>
+<p>(if empty it will be sent only to you)</p>
+<p><textarea id="txtRecipients" name="txtRecipients" class="element text medium<? if($noteERROR) echo ' mistake'; ?>" type="textarea" rows = "1" cols="85" wrap-"none" maxlength="400" value="<?php echo $Recipients;?>" placeholder="Recipients" onfocus="this.select()" tabindex="30"/>
+</textarea></p>
 
-                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="soft" maxlength="12000" value="<?php echo $Note; ?>" placeholder="" onfocus="this.select()"  tabindex="30"/>
-                    </textarea>
+                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="soft" maxlength="1200" value="<?php echo $Note; ?>" placeholder="Message" onfocus="this.select()"  tabindex="30"/>
+</textarea>
 
                 </fieldset>
 <fieldset>

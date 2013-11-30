@@ -20,7 +20,8 @@ create table tblNoteToUser(
 fkNoteID int(20) not null references tblNote(pkNoteID),
 fkFromUsername varchar(20) not null references tblUser(pkUsername),
 fkToUsername varchar(20) not null references tblNote(fldToUsername),
-primary key (fkNoteID, fkFromUsername)
+fldRecipNum int(2),
+primary key (fkNoteID, fldRecipNum, fkFromUsername)
 );
 
 create table tblFile(
