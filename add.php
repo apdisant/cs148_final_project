@@ -1,6 +1,7 @@
 <?
 session_start();
 $debug = 1;
+$uploadsDir = 'files';
 if ($debug) print "<p>DEBUG MODE IS ON</p>";
 if ($debug) print "<p> session username: " . $_SESSION["Username"]. "</p>";
 
@@ -17,52 +18,6 @@ $Deadline = "";
 
 ###################################################################################
 
-/*
-if (isset($_POST["btnUpload"])) {
-    if ($fromPage != $yourURL) {
-        die("<p>Sorry you cannot access this page. Security breach detected and reported.</p>");
-    }
-    
-    $allowedExts = array("gif", "jpeg", "jpg", "png");
-    $temp = explode(".", $_FILES["imgFile"]["name"]);
-    $extension = end($temp);
-    
-    if ((($_FILES["imgFile"]["type"] == "image/gif")
-    || ($_FILES["imgFile"]["type"] == "image/jpeg")
-    || ($_FILES["imgFile"]["type"] == "image/jpg")
-    || ($_FILES["imgFile"]["type"] == "image/pjpeg")
-    || ($_FILES["imgFile"]["type"] == "image/x-png")
-    || ($_FILES["imgFile"]["type"] == "image/png"))
-    && ($_FILES["imgFile"]["size"] < 20000)
-    && in_array($extension, $allowedExts))
-      {
-      if ($_FILES["file"]["error"] > 0) {
-        if ($debug) { echo "Return Code: " . $_FILES["imgFile"]["error"] . "<br>";}
-        $output="<p>There was a problem submitting your file</p>";
-      } else {
-        if ($debug) {
-            echo "<p>Upload: " . $_FILES["imgFile"]["name"] . "<br>";
-            echo "Type: " . $_FILES["imgFile"]["type"] . "<br>";
-            echo "Size: " . ($_FILES["imgFile"]["size"] / 1024) . " kB<br>";
-            echo "Temp file: " . $_FILES["imgFile"]["tmp_name"] . "<br>";
-        }
-        
-        if (file_exists("images/" . $_FILES["imgFile"]["name"])){
-          $output= $_FILES["imgFile"]["name"] . " already exists. ";
-        }else{
-          move_uploaded_file($_FILES["imgFile"]["tmp_name"],"images/" . $_FILES["imgFile"]["name"]);
-          $output="<p>File Stored in: " . "images/" . $_FILES["imgFile"]["name"];
-          }
-        }
-      }
-    else
-      {
-      $output="<p>Invalid file";
-      }
-   
-
-} // ends form was submitted
-*/
 
 if (isset($_POST["btnSubmit"])) {
     $fromPage = getenv("http_referer");
@@ -87,6 +42,8 @@ if (isset($_POST["btnSubmit"])) {
     $date = date('Y-m-d H:i:s');
 
 if ($debug) print "<p>date: " . $date . "</p>";
+
+
 ###################################################################################
 
    include ("validation_functions.php");
@@ -103,12 +60,46 @@ if ($debug) print "<p>date: " . $date . "</p>";
             $errorMsg[] = "I'm sorry, the username you entered is not valid.";
                      }
 */
-###################################################################################
+##################################################################################
+//image submission
 
+$fileName = $_FILES['userfile']['name'];
+$tmpName  = $_FILES['userfile']['tmp_name'];
+$fileSize = $_FILES['userfile']['size'];
+$fileType = $_FILES['userfile']['type'];
+
+$fp      = fopen($tmpName, 'r');
+$content = fread($fp, filesize($tmpName));
+$content = addslashes($content);
+fclose($fp);
+
+if(!get_magic_quotes_gpc())
+{
+    $fileName = addslashes($fileName);
+}
+
+
+if ($debug)
+{
+   echo "<br>Filename $fileName <br>";
+   print "<p>tempname " .$tmpName."</p>";
+   print "<p> filesize" .$fileSize."</p>";
+   print "<p> filetype" .$fileType."</p>";
+   print $uploadsDir."/".$fileName;
+}
+if (file_exists($uploadsDir."/".$fileName))
+{
+print "<p>" . $fileName . " already exists. ";
+}else{
+move_uploaded_file($tmpName, "$uploadsDir/$fileName");
+   print "<p>".$fileName. " uploaded</p>";
+}
+
+##############################################################################
    if (!$errorMsg){
       if ($debug) print "<p>Form is valid</p>";
 
-###################################################################################
+##################################################################################
 
    $primaryKey = "";
    $dataEntered = false;
@@ -139,8 +130,17 @@ if ($debug) print "<p>date: " . $date . "</p>";
           if ($debug) print "<p>sql2 " .$sql2;
 
           $stmt2->execute();
+
+          $sql3 = 'insert into tblFile Set fkNoteID="' .$primaryKey . '", ';
+          $sql3 .= 'fldName="' .$fileName. '",';
+          $sql3 .= 'fldSize="' .$fileSize. '"';
+
+          $stmt3 = $db->prepare($sql3);
+          if ($debug) print "<p>sql3 " .$sql3;
+
+          $stmt3->execute();
 $dataEntered = $db->commit();
-            if ($debug) print "<p>transaction complete ";
+            if ($debug) print "<p>transaction complete";
         } catch (PDOExecption $e) {
             $db->rollback();
             if ($debug) print "Error!: " . $e->getMessage() . "</br>";
@@ -216,17 +216,26 @@ include ("header.php");
 <form action="<? print $_SERVER['PHP_SELF']; ?>"
                   
                   method="post"
+                  enctype="multipart/form-data"
                   id="frmAdd">
                 <fieldset class="add">
                     <legend>add a note</legend>
 
 
-                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="soft" maxlength="12000" value="<?php echo $Note; ?>" placeholder="Enter your note here" onfocus="this.select()"  tabindex="30"/>
+                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="soft" maxlength="12000" value="<?php echo $Note; ?>" placeholder="" onfocus="this.select()"  tabindex="30"/>
                     </textarea>
 
                 </fieldset>
-
-
+<fieldset>
+   <table width="350" border="0" cellpadding="1" cellspacing="1" class="box">
+   <tr>
+   <td width="246">
+   <input type="hidden" name="MAX_FILE_SIZE" value="20000000">
+   <input name="userfile" type="file" id="userfile">
+   </td>
+   </tr>
+   </table>
+</fieldset>
 
 <fieldset class="buttons">
                     <input type="hidden" name="redirect" value="form.php">

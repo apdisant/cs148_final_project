@@ -1,7 +1,7 @@
 <?php
    session_start();
    include ("top.php");
-   $debug = 0;
+   $debug = 1;
    $baseURL = "https://www.uvm.edu/~apdisant/";
    $folderPath = "cs148/assignment5.1/";
    // full URL of this form
@@ -33,6 +33,30 @@
 
       $sql = "Delete ";
       $sql .= "FROM tblNoteToUser ";
+      $sql .= "where fkNoteID=" .$delID;
+
+      if ($debug) print "<p>sql " . $sql;
+      $stmt = $db->prepare($sql);
+      $DeleteData = $stmt->execute();
+         
+         $sql = 'select fldName ';
+         $sql .= 'from tblFile ';
+         $sql .= 'where fkNoteID = '.$delID;
+         if ($debug) print "<p>sql " .$sql;
+
+         $stmt = $db->prepare($sql);
+
+         $stmt->execute();
+         $filesTable = $stmt->fetchAll();
+         if($debug){ print "<pre>"; print_r($filesTable); print "</pre>";}
+         foreach ($filesTable as $files)
+         {
+            print "<p> files/".$files['fldName'];
+            unlink("files/".$files['fldName']);
+         }
+
+      $sql = "Delete ";
+      $sql .= "FROM tblFile ";
       $sql .= "where fkNoteID=" .$delID;
 
       if ($debug) print "<p>sql " . $sql;
@@ -88,7 +112,22 @@
 	    </fieldset>
          </form>
          <?
-         print '<p class="message">' .$NF['fldMessage']. '</p></a></li>';
+         print '<p class="message">' .$NF['fldMessage']. '</a>';
+         $sql = 'select fldName ';
+         $sql .= 'from tblFile ';
+         $sql .= 'where fkNoteID = "'.$NTM['fkNoteID']. '"';
+         if ($debug) print "<p>sql " .$sql;
+
+         $stmt = $db->prepare($sql);
+
+         $stmt->execute();
+         $filesTable = $stmt->fetchAll();
+         if($debug){ print "<pre>"; print_r($filesTable); print "</pre>";}
+         foreach ($filesTable as $files)
+         {
+            print "<a id = files href = 'files/".$files['fldName']."'>".$files['fldName']."</a></p></li>";
+         }
+
        }
        }
 print '</ol>'

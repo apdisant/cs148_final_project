@@ -66,11 +66,12 @@ a
 .message
 {
    position: relative;
-   top: -1.5em;
+"   top: -1.5em;"
 }
 .delete
 {
    border: 0px solid;
+   height: 0px;
 
 }
 .deleteButton
@@ -92,6 +93,11 @@ a
 .deleteButton:hover
 {
    background-color:#a0ffa9;
+}
+#files
+{
+   text-decoration: underline;
+   color: #0C5CA5; !important
 }
 #home
 {
