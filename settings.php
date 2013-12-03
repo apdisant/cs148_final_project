@@ -11,16 +11,35 @@ require_once ("connect.php");
 
 if (isset($_POST["cmdDelete"]))
    {
-      print "<p>testing</p>";
-      $delID = htmlentities($_POST["deleteID"], ENT_QUOTES);
+     $Password = htmlentities($_POST["txtPassword"], ENT_QUOTES, "UTF-8");
+     $HashedPass = md5($Password);
+     if ($debug) print '<p> pass: ' .$Password.'</p> <p> hashed: ' .$HashedPass. '</p>';
+ 
+      $sql = 'select fldPassword ';
+      $sql .= 'from tblUser ';
+      $sql .= 'where pkUsername = "' .$_SESSION['Username']. '"';
+      if ($debug) print "<p>sql: ".$sql;
 
-      $sql = "Delete ";
-      $sql .= "FROM tblUser ";
-      $sql .= "where pkUsername=" .$delID;
-
-      if ($debug) print "<p>sql " . $sql;
       $stmt = $db->prepare($sql);
-      //$DeleteData = $stmt->execute();
+
+      $stmt->execute();
+
+      $user = $stmt->fetchAll();
+      if($debug){ print "<pre>"; print_r($user); print "</pre>";}
+ 
+      if ($User['fldPassword'] = $HashedPass)
+      {
+         print "<p>testing</p>";
+         $delID = htmlentities($_POST["deleteID"], ENT_QUOTES);
+
+         $sql = "Delete ";
+         $sql .= "FROM tblUser ";
+         $sql .= "where pkUsername=" .$delID;
+
+         if ($debug) print "<p>sql " . $sql;
+         $stmt = $db->prepare($sql);
+         //$DeleteData = $stmt->execute();
+      }
 }
 ?>
 

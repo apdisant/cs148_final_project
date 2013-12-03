@@ -26,7 +26,7 @@ primary key (fkNoteID, fldRecipNum, fkFromUsername)
 
 create table tblFile(
 fkNoteID int(20) not null references tblNote(pkNoteID),
-fldName varchar(80),
+fkFromUsername varchar(20) references tblUser(pkUsername), fldName varchar(80),
 fldSize int(8),
 primary key (fkNoteID)
 );

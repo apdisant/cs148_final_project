@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$debug = 1;
+$debug = 0;
 if ($debug) print "<p>DEBUG MODE IS ON</p>";
 
 $baseURL = "https://www.uvm.edu/~apdisant/";

@@ -12,7 +12,7 @@ $yourURL = $baseURL . $folderPath . "add.php";
 
 require_once("connect.php");
 
-$Note = "Enter your note here";
+$Note = "";
 $Recipient = "";
 $Deadline = "";
 
@@ -31,6 +31,7 @@ if (isset($_POST["btnSubmit"])) {
         die("<p>Sorry you cannot access this page. Security breach detected and reported.</p>");
     }
 
+    $Note=str_replace("'", "\'",$Note);
     $Note = htmlentities($_POST["txtNote"], ENT_QUOTES, "UTF-8");
     if($debug) print "<p> note: " .$Note. "</p>";
     $Recipients= htmlentities($_POST["txtRecipients"], ENT_QUOTES, "UTF-8");
@@ -49,10 +50,11 @@ if ($debug) print "<p>date: " . $date . "</p>";
    include ("validation_functions.php");
    $errorMsg = array();
 
- $valid = verifyText($Note); /* test for non-valid  data */
+/* $valid = verifyText($Note); 
         if (!$valid) {
             $errorMsg[] = "I'm sorry, the Note you entered is not valid. Letters, numbers and punctuation only";
                      }
+                     */
  $valid = verifyRecipients($Recipients); /* test for non-valid  data */
         if (!$valid) {
             $errorMsg[] = "I'm sorry, the list of recipients you entered is not valid. Letters and numbers only separated by commas";
@@ -147,6 +149,7 @@ if ($debug) print "<p>csv recipients: "; print_r($ArrayRecipients); print "</p>"
           }
 
           $sql3 = 'insert into tblFile Set fkNoteID="' .$primaryKey . '", ';
+          $sql3 .= 'fkFromUsername="' .$_SESSION['Username']. '",';
           $sql3 .= 'fldName="' .$fileName. '",';
           $sql3 .= 'fldSize="' .$fileSize. '"';
 
@@ -241,8 +244,9 @@ include ("header.php");
 <p>(if empty it will be sent only to you)</p>
 <p><textarea id="txtRecipients" name="txtRecipients" class="element text medium<? if($noteERROR) echo ' mistake'; ?>" type="textarea" rows = "1" cols="85" wrap-"none" maxlength="400" value="<?php echo $Recipients;?>" placeholder="Recipients" onfocus="this.select()" tabindex="30"/>
 </textarea></p>
+Enter Your Note here.<br>
 
-                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="soft" maxlength="1200" value="<?php echo $Note; ?>" placeholder="Message" onfocus="this.select()"  tabindex="30"/>
+                    <textarea id ="txtNote" name="txtNote" class="element text medium<?php if ($NoteERROR) echo ' mistake'; ?>" type="textarea" rows="20" cols="85" wrap="hard" maxlength="1200" onfocus="this.select()"  tabindex="30"/><? print $Note;?>
 </textarea>
 
                 </fieldset>
